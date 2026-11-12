@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/* ───────────── Design tokens — sampled from the Club House logo ───────────── */
+@theme {
+  --color-ink: #0c140f;
+  --color-forest-950: #0f1a13;
+  --color-forest-900: #14221a;
+  --color-forest-800: #1b2e22;
+  --color-forest-700: #2d4538;
+  --color-forest-600: #3e5b4a;
+  --color-forest-400: #8a9d8f;
+  --color-cream-50: #f8f6ea;
+  --color-cream-100: #eeedcf;
+  --color-cream-200: #e3e0bf;
+  --color-cream-300: #cfcaa0;
+  --color-swiss: #e92730;
+  --color-brass: #c9a45c;
+  --color-ember: #e0893a;
+  --color-dusk: #d9b88a;
+
+  --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --breakpoint-xs: 23.75rem;
+
+  --animate-spin-slow: spin 18s linear infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-scroll-cue: scroll-cue 2.2s var(--ease-out-expo) infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  @keyframes scroll-cue {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    45% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    55% {
+      transform: scaleY(1);
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Segoe Print", cursive;
+}
+
+/* ───────────── Base ───────────── */
+@layer base {
+  html {
+    background: var(--color-forest-900);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--color-forest-900);
+    color: var(--color-cream-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-swiss);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  img {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+/* ───────────── Utilities ───────────── */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+@utility arch {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+}
+
+@utility dotted-leader {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1.4px);
+  background-size: 7px 3px;
+  background-repeat: repeat-x;
+  background-position: left center;
+  opacity: 0.35;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ───────────── Film grain (static, GPU-cheap) ───────────── */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ───────────── Progressive enhancement for intro animations ─────────────
+   `.js` is set by an inline script before paint; `.hydrated` once React mounts.
+   If JS never hydrates, the fail-safe reveals everything after 3.5s. */
+.js [data-hero-line],
+.js [data-hero-fade],
+.js [data-hero-float],
+.js [data-menu-word],
+.js [data-menu-fade] {
+  visibility: hidden;
+}
+
+.js [data-hero-shutter] {
+  display: block;
+}
+
+html.js:not(.hydrated) [data-hero-line],
+html.js:not(.hydrated) [data-hero-fade],
+html.js:not(.hydrated) [data-hero-float],
+html.js:not(.hydrated) [data-menu-word],
+html.js:not(.hydrated) [data-menu-fade] {
+  animation: failsafe-show 0s 3.5s forwards;
+}
+
+html.js:not(.hydrated) [data-hero-shutter],
+html.js:not(.hydrated) .preloader {
+  animation: failsafe-hide 0s 3.5s forwards;
+}
+
+html[data-visited] .preloader {
+  display: none;
+}
+
+@keyframes preview-in {
+  from {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes failsafe-show {
+  to {
+    visibility: visible;
+  }
+}
+
+@keyframes failsafe-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Map embed tinted to the brand palette */
+.map-tint {
+  filter: grayscale(1) sepia(0.35) hue-rotate(40deg) saturate(0.9) contrast(0.95) brightness(0.92);
+}
+
+/* Custom cursor only exists on precise pointers */
+@media (hover: none), (pointer: coarse) {
+  .cursor-follower {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
